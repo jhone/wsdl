@@ -1,8 +1,8 @@
 package com.redsun.platf.dao.account;
 
 import org.springframework.stereotype.Component;
-import org.springside.modules.orm.hibernate.HibernateDao;
 
+import com.redsun.platf.dao.base.impl.PagedDao;
 import com.redsun.platf.entity.account.User;
 
 /**
@@ -11,5 +11,11 @@ import com.redsun.platf.entity.account.User;
  * @author calvin
  */
 @Component
-public class UserDao extends HibernateDao<User, Long> {
+public class UserDao extends PagedDao<User, Long> {
+
+	public UserDao() {
+		super();
+		this.entityClass=User.class;
+	}
+	
 }

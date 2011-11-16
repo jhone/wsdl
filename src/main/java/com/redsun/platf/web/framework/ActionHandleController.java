@@ -31,7 +31,7 @@ import org.springframework.web.servlet.mvc.multiaction.MethodNameResolver;
 import org.springframework.web.servlet.mvc.multiaction.NoSuchRequestHandlingMethodException;
 
 import com.redsun.platf.dao.interceptor.RequestThreadResourceManager;
-import com.redsun.platf.entity.sys.UserAccount;
+import com.redsun.platf.entity.account.User;
 
 /**
  * <p>Title: com.walsin.platf.web.framework.ActionHandleController</p>
@@ -204,7 +204,7 @@ public abstract class ActionHandleController extends LoggingSupportController im
         List<Object> params = new ArrayList<Object>(paramTypes.length);      
         params.add(request);
         params.add(response);
-        params.add(RequestThreadResourceManager.getResource(UserAccount.class));
+        params.add(RequestThreadResourceManager.getResource(User.class));
         params.add(model);
         
         // 若參數個數 >= 5, 則表示須注入 Command Object

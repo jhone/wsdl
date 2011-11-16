@@ -6,16 +6,30 @@
 	<description>dao 公共配置 </description>
 	
 	
-<!--	<bean id="_basciDao"  class="com.redsun.platf.dao.base.AbstractDao" abstract="true">-->
-<!--	<description>  Dao extend hibernatedao extends simpleHibernamte</description>-->
-<!--		<property name="sessionFactory" ref="sessionFactory" />-->
+	<bean id="_basciDao"  class="com.redsun.platf.dao.base.impl.PagedDao" abstract="true">
+	<description>  Dao extend hibernatedao extends simpleHibernamte</description>
+		<property name="sessionFactory" ref="sessionFactory" />
+	</bean>
+
+	<bean id="storageStationDao"   parent="_basciDao">
+	<description>storage station define </description>
+		 <property name="entityClass" value="com.redsun.ims.entity.StorageStation"/>
+	</bean>
+<!--	<bean id="userDao"   parent="_basciDao">-->
+<!--	<description>storage station define </description>-->
+<!--		 <property name="entityClass" value="com.redsun.platf.entity.account.User"/>-->
 <!--	</bean>-->
- 
+
+<!--	<bean id="systemValueDao"   parent="_basciDao">-->
+<!--		 <property name="entityClass" value="com.redsun.platf.entity.sys.SystemValue"/>-->
+<!--	</bean>-->
+	 
 <!--	<bean id="systemLanguageDao"  parent="_basciDao">-->
 <!--		 <property name="entityClass" value="com.redsun.platf.entity.sys.Language"/> -->
 <!--	</bean> -->
 
-	<!-- Common Use entity -->
+
+<!-- Common Use entity -->
 <!--	<bean id="systemTxnDao" parent="_transactionProxy">-->
 <!--		<description> menu選單主檔DAO</description>-->
 <!--		<property name="target">-->

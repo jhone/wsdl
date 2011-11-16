@@ -3,13 +3,14 @@ package com.redsun.platf.web.controller;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.hibernate.criterion.Restrictions;
 import org.springframework.stereotype.Controller;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,8 +18,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 import org.springside.modules.orm.Page;
 
+import com.redsun.ims.entity.StorageStation;
 import com.redsun.platf.dao.DataAccessObjectFactory;
-import com.redsun.platf.entity.sys.StorageStation;
 import com.redsun.platf.web.framework.StandardController;
 
 /**
@@ -35,8 +36,9 @@ import com.redsun.platf.web.framework.StandardController;
  */
 @Controller
 @RequestMapping("/storage")
-@Transactional
-public class StorageManagerController extends StandardController{
+//@Transactional
+public class StorageManagerController extends StandardController
+{
 	// 默认多列排序,example: username desc,createTime asc
 	protected static final String DEFAULT_SORT_COLUMNS = null;
 
@@ -57,12 +59,13 @@ public class StorageManagerController extends StandardController{
 	@RequestMapping(method = RequestMethod.GET)
 	public ModelAndView indexAll() {
 		System.out.println("get all from:" + StorageStation.class);
-		model.put("test", "1111");
+//		model.put("test", "1111");
 		List<StorageStation> companies = dataFactory.getStorageStationDao().loadAll();
 		model.put("companies", companies);
 		return new ModelAndView("user/user-list", model);
 	}
-
+//	@Resource
+//	SessionFactory sessionFactory;
 	/** 所有列表 */
 	@RequestMapping(method = RequestMethod.GET, value = "/{pageNumber}/{pageSize}")
 	public ModelAndView index(@PathVariable("pageNumber") int pageNumber,
@@ -74,8 +77,23 @@ public class StorageManagerController extends StandardController{
 		// page.setOrder("ck_type ASC");
 
 		page.autoCount(true);
-
-		page =dataFactory.getStorageStationDao().getAll(page);
+		
+		
+//		Criteria c= sessionFactory.getCurrentSession().createCriteria(StorageStation.class);
+//		c.add(Restrictions.gt("id","0"));
+		
+		
+		
+//		page =dataFactory.getStorageStationDao().getAll(page,c);
+//		page =dataFactory.getStorageStationDao().findPage(page,Restrictions.gt("id",0l));
+//		page =dataFactory.getStorageStationDao().findPage(page,Restrictions.gt("id",1L));
+		
+		String hql="from StorageStation a where a.id>=:tid";
+		Map<String ,Object> values=new HashMap();
+		values.put("tid", 2L);
+		page =dataFactory.getStorageStationDao().findPage(page, hql, values);
+		
+		
 		System.out.println("index runed from:" + pageNumber);
 		System.out.println("index runed to: " + pageSize);
 		System.out.println(page.getTotalCount());
@@ -87,9 +105,9 @@ public class StorageManagerController extends StandardController{
 		
 			System.out.println(m.getName());
 		}
-		model.put("success", "true");
-		 model.put("companies", companies);
-
+		
+		 model.put("companies", page);
+		 model.put("success", "true");
 		return new ModelAndView("user/user-list",model);// 不要帶/
 	}
 		

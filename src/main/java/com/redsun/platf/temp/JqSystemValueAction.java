@@ -4,7 +4,7 @@ import org.springside.modules.orm.Page;
 
 import com.redsun.platf.entity.sys.SystemValue;
 import com.redsun.platf.service.sys.IBaseEntityManager;
-import com.redsun.platf.web.JqEditActionSupport;
+import com.redsun.platf.web.action.JqEditActionSupport;
 
 /**
  * <p>Title        : com.webapp        </p>

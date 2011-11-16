@@ -2,18 +2,17 @@ package com.redsun.platf.service.account;
 
 import java.util.List;
 
+import javax.annotation.Resource;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springside.modules.orm.Page;
 import org.springside.modules.orm.PropertyFilter;
 import org.springside.modules.security.springsecurity.SpringSecurityUtils;
 
-import com.redsun.platf.dao.account.AuthorityDao;
-import com.redsun.platf.dao.account.RoleDao;
-import com.redsun.platf.dao.account.UserDao;
+import com.redsun.platf.dao.base.IPagedDao;
 import com.redsun.platf.entity.account.Authority;
 import com.redsun.platf.entity.account.Role;
 import com.redsun.platf.entity.account.User;
@@ -32,9 +31,17 @@ public class AccountManager {
 
 	private static Logger logger = LoggerFactory.getLogger(AccountManager.class);
 
-	private UserDao userDao;
-	private RoleDao roleDao;
-	private AuthorityDao authorityDao;
+//	private UserDao userDao;
+//	private RoleDao roleDao;
+//	private AuthorityDao authorityDao;
+
+	@Resource//(name="roleDao")
+	private IPagedDao<Role, Long>  roleDao;
+
+	@Resource//(name="userDao")
+	private IPagedDao<User, Long> userDao;
+	@Resource
+	private IPagedDao<Authority, Long>  authorityDao;
 	
 	
 	//-- User Manager --//
@@ -114,20 +121,28 @@ public class AccountManager {
 		return authorityDao.getAll();
 	}
 
-	@Autowired
-	public void setUserDao(UserDao userDao) {
+	public IPagedDao<User, Long> getUserDao() {
+		return userDao;
+	}
+
+	public void setUserDao(IPagedDao<User, Long> userDao) {
 		this.userDao = userDao;
 	}
 
-	@Autowired
-	public void setRoleDao(RoleDao roleDao) {
-		this.roleDao = roleDao;
-	}
-
-	@Autowired
-	public void setAuthorityDao(AuthorityDao authorityDao) {
-		this.authorityDao = authorityDao;
-	}
+//	@Autowired
+//	public void setUserDao(UserDao userDao) {
+//		this.userDao = userDao;
+//	}
+//
+//	@Autowired
+//	public void setRoleDao(RoleDao roleDao) {
+//		this.roleDao = roleDao;
+//	}
+//
+//	@Autowired
+//	public void setAuthorityDao(AuthorityDao authorityDao) {
+//		this.authorityDao = authorityDao;
+//	}
 
 	
 }

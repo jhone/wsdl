@@ -1,8 +1,0 @@
-2011.11.07   db-config.xml
-  aop txAdvice 配置修正
-  systemConfig entity 
-  standard Request Interceptor 
-  
-  configService ->interceptor ->httpRequest.setAttrube("web.theme",
-          configService(ApplicationConfigLoader).intance.getThemesMap())
-  

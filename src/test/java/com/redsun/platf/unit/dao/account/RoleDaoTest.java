@@ -2,19 +2,20 @@ package com.redsun.platf.unit.dao.account;
 
 import static org.junit.Assert.assertEquals;
 
+import javax.annotation.Resource;
 import javax.sql.DataSource;
 
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springside.modules.test.spring.SpringTxTestCase;
 import org.springside.modules.test.utils.DataUtils;
 import org.springside.modules.test.utils.DbUnitUtils;
 
-import com.redsun.platf.dao.account.RoleDao;
 import com.redsun.platf.dao.account.UserDao;
+import com.redsun.platf.dao.base.IPagedDao;
+import com.redsun.platf.data.AccountData;
 import com.redsun.platf.entity.account.Role;
 import com.redsun.platf.entity.account.User;
 
@@ -23,28 +24,28 @@ import com.redsun.platf.entity.account.User;
  * 
  * @author calvin
  */
-@ContextConfiguration(locations = { "/applicationContext-test.xml" })
+@ContextConfiguration(locations = { "/applicationContext.xml" })
 public class RoleDaoTest extends SpringTxTestCase {
 
 	private static DataSource dataSourceHolder = null;
 
-	@Autowired
-	private RoleDao roleDao;
+	@Resource//(name="roleDao")
+	private IPagedDao<Role, Long>  roleDao;
 
-	@Autowired
-	private UserDao userDao;
+	@Resource//(name="userDao")
+	private IPagedDao<User, Long> userDao;
 
 	@Before
 	public void loadDefaultData() throws Exception {
-		if (dataSourceHolder == null) {
-			DbUnitUtils.loadData(dataSource, "/data/default-data.xml");
-			dataSourceHolder = dataSource;
-		}
+//		if (dataSourceHolder == null) {
+//			DbUnitUtils.loadData(dataSource, "/data/default-data.xml");
+//			dataSourceHolder = dataSource;
+//		}
 	}
 
 	@AfterClass
 	public static void cleanDefaultData() throws Exception {
-		DbUnitUtils.removeData(dataSourceHolder, "/data/default-data.xml");
+//		DbUnitUtils.removeData(dataSourceHolder, "/data/default-data.xml");
 	}
 
 	/**
@@ -56,8 +57,11 @@ public class RoleDaoTest extends SpringTxTestCase {
 		Role role = new Role();
 		role.setName(DataUtils.randomName("Role"));
 		roleDao.save(role);
+	
+		
+//		User user = userDao.get(1L);
 
-		User user = userDao.get(1L);
+		User user = AccountData.getRandomUser();
 		user.getRoleList().add(role);
 		userDao.save(user);
 		userDao.flush();

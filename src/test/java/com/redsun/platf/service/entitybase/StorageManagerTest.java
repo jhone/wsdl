@@ -14,9 +14,9 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.redsun.platf.entity.stock.type.ProductCategory;
-import com.redsun.platf.entity.stock.type.StoragePrice;
-import com.redsun.platf.entity.sys.StorageStation;
+import com.redsun.ims.entity.StorageStation;
+import com.redsun.ims.entity.type.ProductCategory;
+import com.redsun.ims.entity.type.StoragePrice;
 import com.redsun.platf.service.sys.IBaseEntityManager;
 
 @RunWith(SpringJUnit4ClassRunner.class)

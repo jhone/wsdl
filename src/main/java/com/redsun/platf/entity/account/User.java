@@ -19,7 +19,7 @@ import org.hibernate.annotations.FetchMode;
 import org.springside.modules.utils.reflection.ConvertUtils;
 
 import com.google.common.collect.Lists;
-import com.redsun.platf.entity.IdEntity;
+import com.redsun.platf.entity.BaseEntity;
 
 /**
  * 用户.
@@ -34,7 +34,20 @@ import com.redsun.platf.entity.IdEntity;
 @Table(name = "ACCT_USER")
 //默认的缓存策略.
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-public class User extends IdEntity {
+public class User extends BaseEntity {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 3675953268005811114L;
+	private String accountId;
+	public String getAccountId() {
+		return accountId;
+	}
+
+	public void setAccountId(String accountId) {
+		this.accountId = accountId;
+	}
 
 	private String loginName;
 	private String password;//为简化演示使用明文保存的密码

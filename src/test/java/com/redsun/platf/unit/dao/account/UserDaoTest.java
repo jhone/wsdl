@@ -1,20 +1,24 @@
 package com.redsun.platf.unit.dao.account;
 
+import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
+import javax.annotation.Resource;
 import javax.sql.DataSource;
 
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springside.modules.test.spring.SpringTxTestCase;
-import org.springside.modules.test.utils.DbUnitUtils;
 
-import com.redsun.platf.dao.account.UserDao;
+import com.redsun.platf.dao.base.IPagedDao;
 import com.redsun.platf.data.AccountData;
+import com.redsun.platf.entity.account.Authority;
+import com.redsun.platf.entity.account.Role;
 import com.redsun.platf.entity.account.User;
 
 /**
@@ -24,51 +28,88 @@ import com.redsun.platf.entity.account.User;
  * 
  * @author calvin
  */
-@ContextConfiguration(locations = { "/applicationContext-test.xml" })
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { "classpath*:applicationContext.xml" })
 public class UserDaoTest extends SpringTxTestCase {
 	private static DataSource dataSourceHolder = null;
+	@Resource
+	private IPagedDao<Authority, Long> authorityDao;
+	@Resource//(name="roleDao")
+	private IPagedDao<Role, Long>  roleDao;
 
-	@Autowired
-	private UserDao entityDao;
+	@Resource//(name="userDao")
+	private IPagedDao<User, Long> userDao;
+
 
 	@Before
 	public void loadDefaultData() throws Exception {
-		if (dataSourceHolder == null) {
-			DbUnitUtils.loadData(dataSource, "/data/default-data.xml");
-			dataSourceHolder = dataSource;
-		}
+//		if (dataSourceHolder == null) {
+//			DbUnitUtils.loadData(dataSource, "/data/default-data.xml");
+//			dataSourceHolder = dataSource;
+//		}
 	}
 
 	@AfterClass
 	public static void cleanDefaultData() throws Exception {
-		DbUnitUtils.removeData(dataSourceHolder, "/data/default-data.xml");
+//		DbUnitUtils.removeData(dataSourceHolder, "/data/default-data.xml");
 	}
 
 	@Test
 	// 如果你需要真正插入数据库,将Rollback设为false
 	// @Rollback(false)
 	public void crudEntityWithRole() {
+		
+//		Authority authority = AccountData.getRandomAuthority();
+//		authorityDao.save(authority);
+//		
+//		// 强制执行sql语句
+//		authorityDao.flush();
+
+		//add role with authority
+//		Role role = new Role();
+//		role.setName(DataUtils.randomName("Role"));
+		
+		Role role=AccountData.getRandomDefaultRole();
+//		role.getAuthorityList().add(authority);
+		
+		roleDao.save(role);
+		roleDao.flush();
+
+		//add user with role
+		/*role must saved before */
 		// 新建并保存带角色的用户
-		User user = AccountData.getRandomUserWithRole();
-		entityDao.save(user);
+//		User user = AccountData.getRandomUserWithRole();
+		User user = AccountData.getRandomUser();
+		user.getRoleList().add(role);
+		userDao.save(user);
 		// 强制执行sql语句
-		entityDao.flush();
+		userDao.flush();
 
 		// 获取用户
-		user = entityDao.findUniqueBy("id", user.getId());
+		user = userDao.findUniqueBy("id", user.getId());
 		assertEquals(1, user.getRoleList().size());
 
+		
 		// 删除用户的角色
+//		roleDao.delete(role);
+//		roleDao.flush();
+		
 		user.getRoleList().remove(0);
-		entityDao.flush();
-		user = entityDao.findUniqueBy("id", user.getId());
+//		userDao.saveOrUpdate(user);//needn't
+		userDao.flush();
+		user = userDao.findUniqueBy("id", user.getId());
 		assertEquals(0, user.getRoleList().size());
-
-		// 删除用户
-		entityDao.delete(user.getId());
-		entityDao.flush();
-		user = entityDao.findUniqueBy("id", user.getId());
+//
+//		// 删除用户
+		userDao.delete(user.getId());
+		userDao.flush();
+		user = userDao.findUniqueBy("id", user.getId());
 		assertNull(user);
+		//didn't delete from role
+		role = roleDao.findUniqueBy("id", role.getId());
+		System.out.println(role.getName());
+		assertNotNull(role);
+		
 	}
 
 	// 期望抛出ConstraintViolationException的异常.
@@ -76,7 +117,7 @@ public class UserDaoTest extends SpringTxTestCase {
 	public void savenUserNotUnique() {
 		User user = AccountData.getRandomUser();
 		user.setLoginName("admin");
-		entityDao.save(user);
-		entityDao.flush();
+		userDao.save(user);
+		userDao.flush();
 	}
 }

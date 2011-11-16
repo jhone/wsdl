@@ -16,7 +16,7 @@ import org.springside.modules.utils.web.struts2.Struts2Utils;
 import com.redsun.platf.entity.sys.SystemCompany;
 import com.redsun.platf.exception.ServiceException;
 import com.redsun.platf.service.sys.IBaseEntityManager;
-import com.redsun.platf.web.CrudActionSupport;
+import com.redsun.platf.web.action.CrudActionSupport;
 
 /**
  * company管理Action.

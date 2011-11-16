@@ -69,25 +69,6 @@ public class ConfigLoaderManagerTest implements ApplicationContextAware {
 			
 		}
 	}
-	@Test
-	public void addTheme() {
-		SystemTheme s =new SystemTheme();
-		s.setTheme("start");
-		s.setDescription("start desc ");
-		
-		dataAccess.getSystemThemeDao().save(s);
-		
-		
-	}
-	@Test
-	public void addLanguage() {
-		SystemLanguage l =new SystemLanguage();
-		l.setCreatedBy("tw");
-		l.setDescription("zh_TW");
-		
-		dataAccess.getSystemLanguageDao().save(l);
-		
-		
-	}
+	
 
 }

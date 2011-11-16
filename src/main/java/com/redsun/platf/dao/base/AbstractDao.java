@@ -3,6 +3,7 @@ package com.redsun.platf.dao.base;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -20,25 +21,34 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.CriteriaSpecification;
 import org.hibernate.criterion.Criterion;
+import org.hibernate.criterion.Disjunction;
+import org.hibernate.criterion.MatchMode;
 import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Projection;
+import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.hql.ParameterTranslations;
 import org.hibernate.hql.classic.QueryTranslatorImpl;
+import org.hibernate.impl.CriteriaImpl;
+import org.hibernate.impl.CriteriaImpl.OrderEntry;
 import org.hibernate.metadata.ClassMetadata;
+import org.hibernate.transform.ResultTransformer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.orm.hibernate3.HibernateCallback;
+import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springside.modules.orm.PropertyFilter;
 import org.springside.modules.orm.PropertyFilter.MatchType;
+import org.springside.modules.utils.reflection.ReflectionUtils;
 
 /**
- * 基本的DAO.
+ * 基本的DAO，供子类paggedDao增加page.
  * 
- * 可在Service层直接使用, 也可以扩展泛型DAO子类使用
+ * 尽可能不在Service层直接使用, 可以扩展泛型DAO子类使用
  * 
  * 使用HibernateTemplate.HibernateDaoSupport
  * 
@@ -47,7 +57,9 @@ import org.springside.modules.orm.PropertyFilter.MatchType;
  * @param <PK>
  *            主键类型
  * 
- * @author 1.0
+ * @author PYC
+ * 
+ * @version 1.0
  * 
  * 
  */
@@ -55,25 +67,20 @@ import org.springside.modules.orm.PropertyFilter.MatchType;
 @Transactional
 @Repository
 @SuppressWarnings("unchecked")
-public class AbstractDao<T, PK extends Serializable> extends
-		HibernateDaoSupport implements IBaseDao<T, PK> {
+public class AbstractDao<T , PK extends Serializable> extends
+		HibernateDaoSupport implements IAbstractBaseDao<T, PK> {
 	protected Logger logger = LoggerFactory.getLogger(getClass());
 
 	@Resource(name = "sessionFactory")
 	SessionFactory sessionFactory;
 
+	@Resource(name = "hibernateTemplate")
+	HibernateTemplate hibernateTemplate;
+	
 	protected Class<T> entityClass;
 
-	/*
-	 * 为父类HibernateDaoSupport注入sessionFactory的值 (non-Javadoc)
-	 * 
-	 * @see
-	 * com.redsun.platf.dao.IDao#setSuperSessionFactory(org.hibernate.SessionFactory
-	 * )
-	 */
-	@Resource(name = "sessionFactory")
-	public void setSuperSessionFactory(SessionFactory sessionFactory) {
-		super.setSessionFactory(sessionFactory);
+	public AbstractDao() {
+		super();
 	}
 
 	/**
@@ -85,11 +92,6 @@ public class AbstractDao<T, PK extends Serializable> extends
 		this.sessionFactory = sessionFactory;
 		this.entityClass = entityClass;
 	}
-	public AbstractDao() {
-		super();
-	}
-
-	
 
 	/**
 	 * 执行HQL进行批量修改/删除操作.
@@ -113,6 +115,56 @@ public class AbstractDao<T, PK extends Serializable> extends
 	@Override
 	public int batchExecute(final String hql, final Object... values) {
 		return createQuery(hql, values).executeUpdate();
+	}
+
+	protected Criterion buildCriterion(final String propertyName,
+			final Object propertyValue, final MatchType matchType) {
+		Assert.hasText(propertyName, "propertyName设置错误");
+		Criterion criterion = null;
+
+		switch (matchType) {
+		case EQ:
+			criterion = Restrictions.eq(propertyName, propertyValue);
+			break;
+		case LIKE:
+			criterion = Restrictions.like(propertyName, (String) propertyValue,
+					MatchMode.ANYWHERE);
+			break;
+
+		case LE:
+			criterion = Restrictions.le(propertyName, propertyValue);
+			break;
+		case LT:
+			criterion = Restrictions.lt(propertyName, propertyValue);
+			break;
+		case GE:
+			criterion = Restrictions.ge(propertyName, propertyValue);
+			break;
+		case GT:
+			criterion = Restrictions.gt(propertyName, propertyValue);
+		}
+		return criterion;
+	}
+
+	protected Criterion[] buildCriterionByPropertyFilter(
+			final List<PropertyFilter> filters) {
+		List<Criterion> criterionList = new ArrayList<Criterion>();
+		for (PropertyFilter filter : filters) {
+			if (!filter.hasMultiProperties()) {
+				Criterion criterion = buildCriterion(filter.getPropertyName(),
+						filter.getMatchValue(), filter.getMatchType());
+				criterionList.add(criterion);
+			} else {//
+				Disjunction disjunction = Restrictions.disjunction();
+				for (String param : filter.getPropertyNames()) {
+					Criterion criterion = buildCriterion(param,
+							filter.getMatchValue(), filter.getMatchType());
+					disjunction.add(criterion);
+				}
+				criterionList.add(disjunction);
+			}
+		}
+		return criterionList.toArray(new Criterion[criterionList.size()]);
 	}
 
 	/**
@@ -233,6 +285,50 @@ public class AbstractDao<T, PK extends Serializable> extends
 	}
 
 	/**
+	 * 执行count查询获得本次Criteria查询所能获得的对象总数.
+	 */
+
+	protected long countCriteriaResult(final Criteria c) {
+		CriteriaImpl impl = (CriteriaImpl) c;
+
+		// 先把Projection、ResultTransformer、OrderBy取出来,清空三者后再执行Count操作
+		Projection projection = impl.getProjection();
+		ResultTransformer transformer = impl.getResultTransformer();
+
+		List<CriteriaImpl.OrderEntry> orderEntries = null;
+		try {
+			orderEntries = (List<OrderEntry>) ReflectionUtils.getFieldValue(
+					impl, "orderEntries");
+			ReflectionUtils.setFieldValue(impl, "orderEntries",
+					new ArrayList<OrderEntry>());
+		} catch (Exception e) {
+			logger.error("不可能抛出的异常:{}", e.getMessage());
+		}
+
+		// 执行Count查询
+		Long totalCountObject = (Long) c.setProjection(Projections.rowCount())
+				.uniqueResult();
+		long totalCount = (totalCountObject != null) ? totalCountObject : 0;
+
+		// 将之前的Projection,ResultTransformer和OrderBy条件重新设回去
+		c.setProjection(projection);
+
+		if (projection == null) {
+			c.setResultTransformer(CriteriaSpecification.ROOT_ENTITY);
+		}
+		if (transformer != null) {
+			c.setResultTransformer(transformer);
+		}
+		try {
+			ReflectionUtils.setFieldValue(impl, "orderEntries", orderEntries);
+		} catch (Exception e) {
+			logger.error("不可能抛出的异常:{}", e.getMessage());
+		}
+
+		return totalCount;
+	}
+
+	/**
 	 * 根据Criterion条件创建Criteria. 与find()函数可进行更加灵活的操作.
 	 * 
 	 * @param criterions
@@ -300,10 +396,9 @@ public class AbstractDao<T, PK extends Serializable> extends
 		// if (entity != null)
 		// getHibernateTemplate().delete(entity);
 		Assert.notNull(entity, "entity不能为空");
-		System.out.println("delete...");
 		getSession().delete(entity);
-//		getHibernateTemplate().delete(entity);
-		logger.debug("delete entity: {}",  entity);
+		// getHibernateTemplate().delete(entity);
+		logger.debug("delete entity: {}", entity);
 	}
 
 	/*
@@ -358,8 +453,8 @@ public class AbstractDao<T, PK extends Serializable> extends
 
 	@Override
 	public List<T> find(List<PropertyFilter> filters) {
-		// TODO Auto-generated method stub
-		return null;
+		Criterion[] criterions = buildCriterionByPropertyFilter(filters);
+		return find(criterions);
 	}
 
 	/**
@@ -567,7 +662,9 @@ public class AbstractDao<T, PK extends Serializable> extends
 
 	@Override
 	public List<T> getAll() {
-		return find();
+		// same as load all
+
+		return loadAll();//getHibernateTemplate().loadAll(getEntityClass());
 	}
 
 	@Override
@@ -579,6 +676,10 @@ public class AbstractDao<T, PK extends Serializable> extends
 			c.addOrder(Order.desc(orderByProperty));
 		}
 		return c.list();
+	}
+
+	private Class<T> getEntityClass() {
+		return entityClass;
 	}
 
 	/**
@@ -667,7 +768,7 @@ public class AbstractDao<T, PK extends Serializable> extends
 		Assert.notNull(entity, "entity不能为空");
 		if (entity != null)
 			getHibernateTemplate().save(entity);
-		logger.debug("save entity: {}",  entity);
+		logger.debug("save entity: {}", entity);
 	}
 
 	// @Override
@@ -719,12 +820,15 @@ public class AbstractDao<T, PK extends Serializable> extends
 	}
 
 	/*
-	 * (non-Javadoc)
+	 * 为父类HibernateDaoSupport注入sessionFactory的值 (non-Javadoc)
 	 * 
-	 * @see com.redsun.platf.dao.IDao#setEntityClass(java.lang.Class)
+	 * @see
+	 * com.redsun.platf.dao.IDao#setSuperSessionFactory(org.hibernate.SessionFactory
+	 * )
 	 */
-	public void setEntityClass(Class<T> entityClass) {
-		this.entityClass = entityClass;
+	@Resource(name = "sessionFactory")
+	public void setSuperSessionFactory(SessionFactory sessionFactory) {
+		super.setSessionFactory(sessionFactory);
 	}
 
 	/**
@@ -801,12 +905,10 @@ public class AbstractDao<T, PK extends Serializable> extends
 		return query;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.redsun.platf.dao.IDao#getEntityClass()
-	 */
-	public Class<T> getEntityClass() {
-		return entityClass;
+	public void setEntityClass(Class<T> entityClass) {
+		this.entityClass = entityClass;
 	}
+
+
+
 }

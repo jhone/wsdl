@@ -22,6 +22,7 @@ public class AccountData {
 
 	private static List<Authority> defaultAuthorityList = null;
 
+	
 	public static User getRandomUser() {
 		String userName = DataUtils.randomName("User");
 

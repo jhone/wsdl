@@ -73,7 +73,7 @@ public class ApplicationConfigLoader implements ConfigLoaderService {
 	public  ConfigLoaderService getInstance() {
 		if (instance == null) {
 			instance = new ApplicationConfigLoader();
-			initFromDb();
+//			initFromDb();
 		}
 		return instance;
 	}

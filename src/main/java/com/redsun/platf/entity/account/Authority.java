@@ -9,7 +9,8 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
-import com.redsun.platf.entity.IdEntity;
+import com.redsun.platf.entity.BaseEntity;
+import com.redsun.platf.entity.sys.SystemValue;
 
 /**
  * 权限.
@@ -21,7 +22,12 @@ import com.redsun.platf.entity.IdEntity;
 @Entity
 @Table(name = "ACCT_AUTHORITY")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-public class Authority extends IdEntity {
+public class Authority extends BaseEntity {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -686104653658976091L;
 
 	/**
 	 * SpringSecurity中默认的角色/授权名前缀.

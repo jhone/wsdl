@@ -22,7 +22,7 @@ import com.redsun.platf.exception.ServiceException;
 import com.redsun.platf.service.sys.IBaseEntityManager;
 import com.redsun.platf.util.PropertyFilterUtil;
 import com.redsun.platf.util.StringUtil;
-import com.redsun.platf.web.CrudActionSupport;
+import com.redsun.platf.web.action.CrudActionSupport;
 
 /**
  * <p>Title        : com.webapp        </p>

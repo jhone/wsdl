@@ -39,7 +39,7 @@
 
 		<property name="packagesToScan">
 			<list>
-				<value>com.redsun.platf.entity</value>
+				<value>com.redsun</value>
 			</list>
 		</property>
 		<!-- <property name="annotatedPackages"> <list> <value>com.batchcard.entity</value> 

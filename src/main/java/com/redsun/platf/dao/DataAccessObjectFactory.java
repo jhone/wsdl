@@ -6,15 +6,16 @@ import javax.annotation.Resource;
 
 import org.springframework.stereotype.Component;
 
+import com.redsun.ims.entity.StorageStation;
+import com.redsun.platf.dao.account.RoleDao;
 import com.redsun.platf.dao.base.IPagedDao;
-import com.redsun.platf.dao.sys.SystemAuthorityDao;
 import com.redsun.platf.dao.sys.SystemCompanyDao;
 import com.redsun.platf.dao.sys.SystemConfigurationDao;
-import com.redsun.platf.dao.sys.SystemRoleDao;
-import com.redsun.platf.dao.sys.SystemUserDao;
-import com.redsun.platf.entity.sys.StorageStation;
+import com.redsun.platf.entity.account.Authority;
+import com.redsun.platf.entity.account.User;
 import com.redsun.platf.entity.sys.SystemLanguage;
 import com.redsun.platf.entity.sys.SystemTheme;
+import com.redsun.platf.entity.sys.SystemValue;
 
 /**
  * <p>Title        : com.webapp        </p>
@@ -37,7 +38,7 @@ import com.redsun.platf.entity.sys.SystemTheme;
  * 
  */
 @Component
-//@Transactional //need't just in dao
+// @Transactional //need't just in dao
 public class DataAccessObjectFactory implements Serializable {
 
 	private static final long serialVersionUID = -5450000925993172262L;
@@ -50,34 +51,41 @@ public class DataAccessObjectFactory implements Serializable {
 	}
 
 	// authority
-	@Resource(name="systemLanguageDao")
-	private IPagedDao<SystemLanguage,Long> systemLanguageDao;
+	@Resource
+	// (name = "systemLanguageDao")
+	private IPagedDao<SystemLanguage, Long> systemLanguageDao;
 
 	// authority
-	@Resource(name="systemThemeDao")
-	private IPagedDao<SystemTheme,Long> systemThemeDao;
+	@Resource
+	// (name = "systemThemeDao")
+	private IPagedDao<SystemTheme, Long> systemThemeDao;
+	// private SystemThemeDao systemThemeDao;
 
-	// authority
-//	@Resource
-	private SystemAuthorityDao systemAuthorityDao;
+	@Resource
+	// (name = "systemValueDao")
+	private IPagedDao<SystemValue, Long> systemValueDao;
+
+	// @Resource
+	private IPagedDao<Authority, Long> authorityDao;
+
 	// role
-//	@Resource
-	private SystemRoleDao systemRoleDao;
+	// @Resource
+	private IPagedDao<RoleDao, Long> roleDao;
+
 	// user
-//	@Resource
-	private SystemUserDao systemUserDao;
-
-//	@Resource
+	// @Resource
+	private IPagedDao<User, Long> userDao;
+	// @Resource
 	private SystemConfigurationDao systemConfigurationDao;
-
-//	@Resource
+	// @Resource
 	private SystemCompanyDao systemCompanyDao;
 
-	@Resource(name = "storageStationDao")
+	// //ims dao
+	@Resource
 	private IPagedDao<StorageStation, Long> storageStationDao;
 
-	public SystemAuthorityDao getSystemAuthorityDao() {
-		return systemAuthorityDao;
+	public IPagedDao<StorageStation, Long> getStorageStationDao() {
+		return storageStationDao;
 	}
 
 	public SystemCompanyDao getSystemCompanyDao() {
@@ -88,28 +96,29 @@ public class DataAccessObjectFactory implements Serializable {
 		return systemConfigurationDao;
 	}
 
-
-
-	public SystemRoleDao getSystemRoleDao() {
-		return systemRoleDao;
-	}
-
-
-
-	public SystemUserDao getSystemUserDao() {
-		return systemUserDao;
-	}
-
 	public IPagedDao<SystemLanguage, Long> getSystemLanguageDao() {
 		return systemLanguageDao;
 	}
 
 	public IPagedDao<SystemTheme, Long> getSystemThemeDao() {
+		// error // public SystemThemeDao getSystemThemeDao() {
 		return systemThemeDao;
 	}
 
-	public IPagedDao<StorageStation, Long> getStorageStationDao() {
-		return storageStationDao;
+	public IPagedDao<SystemValue, Long> getSystemValueDao() {
+		return systemValueDao;
+	}
+
+	public IPagedDao<Authority, Long> getAuthorityDao() {
+		return authorityDao;
+	}
+
+	public IPagedDao<RoleDao, Long> getRoleDao() {
+		return roleDao;
+	}
+
+	public IPagedDao<User, Long> getUserDao() {
+		return userDao;
 	}
 
 }

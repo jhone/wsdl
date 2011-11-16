@@ -44,13 +44,13 @@ public class HibernateMappingTest extends SpringTxTestCase {
 		DbUnitUtils.removeData(dataSourceHolder, "/data/default-data.xml");
 	}
 
-	@Test
 	@SuppressWarnings("unchecked")
+	@Test
 	public void allClassMapping() throws Exception {
 		Session session = sessionFactory.openSession();
 
 		try {
-			Map metadata = sessionFactory.getAllClassMetadata();
+			Map<Object,Object>  metadata = sessionFactory.getAllClassMetadata();
 			for (Object o : metadata.values()) {
 				EntityPersister persister = (EntityPersister) o;
 				String className = persister.getEntityName();

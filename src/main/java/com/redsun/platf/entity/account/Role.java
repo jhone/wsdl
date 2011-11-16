@@ -19,7 +19,8 @@ import org.hibernate.annotations.FetchMode;
 import org.springside.modules.utils.reflection.ConvertUtils;
 
 import com.google.common.collect.Lists;
-import com.redsun.platf.entity.IdEntity;
+import com.redsun.platf.entity.BaseEntity;
+import com.redsun.platf.entity.sys.SystemValue;
 
 /**
  * 角色.
@@ -31,8 +32,12 @@ import com.redsun.platf.entity.IdEntity;
 @Entity
 @Table(name = "ACCT_ROLE")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-public class Role extends IdEntity {
+public class Role extends BaseEntity {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 156789436193718012L;
 	private String name;
 	private List<Authority> authorityList = Lists.newArrayList();
 

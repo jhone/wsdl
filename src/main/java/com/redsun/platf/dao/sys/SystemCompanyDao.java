@@ -2,7 +2,7 @@ package com.redsun.platf.dao.sys;
 
 import org.springframework.stereotype.Component;
 
-import com.redsun.platf.dao.base.AbstractPagedDao;
+import com.redsun.platf.dao.base.impl.PagedDao;
 import com.redsun.platf.entity.sys.SystemCompany;
 
 /**
@@ -11,7 +11,7 @@ import com.redsun.platf.entity.sys.SystemCompany;
  * @author calvin
  */
 @Component
-public class SystemCompanyDao extends AbstractPagedDao<SystemCompany, Long> {
+public class SystemCompanyDao extends PagedDao<SystemCompany, Long> {
 
 	public SystemCompanyDao() {
 		super();

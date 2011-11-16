@@ -8,7 +8,7 @@ import org.hibernate.EmptyInterceptor;
 import org.hibernate.type.Type;
 
 import com.redsun.platf.entity.BaseEntity;
-import com.redsun.platf.entity.sys.UserAccount;
+import com.redsun.platf.entity.account.User;
 
 /**
  * <p>Title: com.walsin.platf.dao.hibernate.support.StandardWhoColumnIntercepter</p>
@@ -37,8 +37,8 @@ public class StandardWhoColumnInterceptor extends EmptyInterceptor{
     public boolean onFlushDirty(Object entity, Serializable id, Object[] currentState, Object[] previousState, String[] propertyNames, Type[] types) {
         boolean modified = false;
         if(entity instanceof BaseEntity){
-            UserAccount userAccount = (UserAccount)RequestThreadResourceManager.getResource(UserAccount.class);
-            String userId = (userAccount == null ? EP_SYSTEM_USER : userAccount.getAccountId());
+            User User = (User)RequestThreadResourceManager.getResource(User.class);
+            String userId = (User == null ? EP_SYSTEM_USER : User.getAccountId());
             for (int i=0, size=propertyNames.length ; i<size ; i++) { 
                 String propertyName = propertyNames[i];
                 if(StringUtils.equals(LAST_UPDATED_BY_COLUMN, propertyName)) {
@@ -58,8 +58,8 @@ public class StandardWhoColumnInterceptor extends EmptyInterceptor{
     public boolean onSave(Object entity, Serializable id, Object[] currentState, String[] propertyNames, Type[] types) {
         boolean modified = false;
         if(entity instanceof BaseEntity){
-            UserAccount userAccount = (UserAccount)RequestThreadResourceManager.getResource(UserAccount.class);
-            String userId = (userAccount == null ? EP_SYSTEM_USER : userAccount.getAccountId());
+            User user = (User)RequestThreadResourceManager.getResource(User.class);
+            String userId = (user == null ? EP_SYSTEM_USER : user.getAccountId());
             for (int i=0, size=propertyNames.length ; i<size ; i++) { 
                 String propertyName = propertyNames[i];
                 if(StringUtils.equals(LAST_CREATED_BY_COLUMN, propertyName)) {

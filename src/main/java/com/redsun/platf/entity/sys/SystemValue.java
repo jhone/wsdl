@@ -6,7 +6,7 @@ import javax.persistence.Table;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
-import com.redsun.platf.entity.IdEntity;
+import com.redsun.platf.entity.BaseEntity;
 
 /**
  * <p>
@@ -31,9 +31,14 @@ import com.redsun.platf.entity.IdEntity;
 @Table(name = "SYS_VALUE")
 // 默认的缓存策略.
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-public class SystemValue extends IdEntity {
+public class SystemValue extends BaseEntity {
 
-    /** no */
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -8596781748322463194L;
+
+	/** no */
     private String sysNo;
 
     /** key */

@@ -8,6 +8,10 @@ import org.hibernate.criterion.Criterion;
 import org.springside.modules.orm.Page;
 import org.springside.modules.orm.PropertyFilter;
 
+
+
+
+
 /**
  * 封装Page的DAO泛型接口.
  * 
@@ -23,7 +27,7 @@ import org.springside.modules.orm.PropertyFilter;
  * 
  * 
  */
-public interface IPagedDao<T, PK extends Serializable> extends  IBaseDao<T, PK> {
+public interface IPagedDao<T, PK extends Serializable> extends  IAbstractBaseDao<T, PK> {
 
    
     /**
